@@ -240,9 +240,18 @@ nav{
 <div id="toast" class="toast"></div>
 <script src="https://embed.twitch.tv/embed/v1.js"></script>
 <script>
-// Theme toggle
 const $ = s => document.querySelector(s);
 let CHANNEL = 'mintgirlmint';
+
+// Auto-detect API base URL
+const BASE_URL = window.location.hostname.includes("localhost")
+  ? "http://localhost:3000"
+  : "https://your-render-url.onrender.com"; // <-- replace with your Render app URL
+
+const API = `${BASE_URL}/api/twitch?channel=${CHANNEL}`;
+const OTHER_CHANNELS_API = `${BASE_URL}/api/channels`;
+
+// Theme toggle
 function isDark(){ return document.body.classList.contains('dark'); }
 function setTheme(dark){ 
   if(dark){ 
@@ -279,10 +288,11 @@ function createVideo(){
 // Fetch Twitch data
 async function loadData(){
   try{
-    const res=await fetch(`http://localhost:3000/api/twitch?channel=${CHANNEL}`);
+    const res=await fetch(`${BASE_URL}/api/twitch?channel=${CHANNEL}`);
     if(!res.ok) throw new Error('Fetch failed');
     const data=await res.json();
     const u=data.user,s=data.stream;
+
     $('#channelName').textContent=u?.display_name||'Unknown';
     $('#streamTitle').textContent=s?.title||'Offline';
     $('#streamMeta').textContent=s?`Game: ${s.game_name||'—'} • Started ${new Date(s.started_at||Date.now()).toLocaleString()}`:'';
@@ -295,7 +305,7 @@ async function loadData(){
     $('#viewerCount').textContent=s?.viewer_count||0;
     $('#followersCount').textContent=(data.followers||'N/A').toLocaleString();
     $('#vodCount').textContent=(data.videos?.length||0);
-    
+
     const clipsEl=$('#clips'); clipsEl.innerHTML='';
     (data.clips||[]).slice(0,8).forEach(c=>{
       const a=document.createElement('a'); a.href=c.url; a.target='_blank'; a.className='media';
@@ -318,7 +328,7 @@ async function loadData(){
 // Other channels
 async function loadOtherChannels(){
   try{
-    const res=await fetch(`http://localhost:3000/api/channels`);
+    const res=await fetch(`${BASE_URL}/api/channels`);
     const data=await res.json();
     const container=$('#otherChannels'); container.innerHTML='';
     data.slice(0,9).forEach(ch=>{
@@ -339,5 +349,6 @@ async function loadOtherChannels(){
 $('#refreshBtn').addEventListener('click',()=>{ loadData(); loadOtherChannels(); });
 document.addEventListener('DOMContentLoaded',()=>{ loadData(); loadOtherChannels(); });
 </script>
+
 </body>
 </html>

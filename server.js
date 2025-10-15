@@ -11,24 +11,17 @@ const CLIENT_SECRET = "v0q7fiho2bwbahviuvrjgzl7n5f977";
 let accessToken = "";
 const userCache = {};
 
-// Get new OAuth token
 async function getAccessToken() {
-  try {
-    const res = await fetch(
-      `https://id.twitch.tv/oauth2/token?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=client_credentials`,
-      { method: "POST" }
-    );
-    const data = await res.json();
-    if (!data.access_token) throw new Error("Failed to acquire access token");
-    accessToken = data.access_token;
-    console.log("✅ Access token acquired");
-  } catch (err) {
-    console.error("Error fetching access token:", err);
-    throw err;
-  }
+  const res = await fetch(
+    `https://id.twitch.tv/oauth2/token?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=client_credentials`,
+    { method: "POST" }
+  );
+  const data = await res.json();
+  if (!data.access_token) throw new Error("Failed to acquire access token");
+  accessToken = data.access_token;
+  console.log("✅ Access token acquired");
 }
 
-// Get user info with caching
 async function getUserInfo(channel) {
   if (userCache[channel]) return userCache[channel];
   const res = await fetch(`https://api.twitch.tv/helix/users?login=${channel}`, {
@@ -40,7 +33,6 @@ async function getUserInfo(channel) {
   return data.data[0];
 }
 
-// Fetch all Twitch data for a channel
 async function fetchTwitchData(channel, retry = true) {
   try {
     const headers = { "Client-ID": CLIENT_ID, Authorization: `Bearer ${accessToken}` };
@@ -54,7 +46,6 @@ async function fetchTwitchData(channel, retry = true) {
       fetch(`https://api.twitch.tv/helix/clips?broadcaster_id=${userId}&first=8`, { headers }),
     ]);
 
-    // Retry if unauthorized
     if (retry && [streamRes, followersRes, videosRes, clipsRes].some(r => r.status === 401)) {
       await getAccessToken();
       return fetchTwitchData(channel, false);
@@ -105,6 +96,10 @@ app.get("/api/channels", async (req, res) => {
   }
 });
 
-// Use dynamic port for deployment
+// Optional root
+app.get("/", (req, res) => {
+  res.send("✅ Twitch API running. Use /api/twitch?channel=CHANNEL or /api/channels");
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
