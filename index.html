@@ -278,11 +278,23 @@ function showToast(msg, t=3000){
 // Video embed
 let videoEmbed=null;
 function createVideo(){ 
-  const parent=[window.location.hostname];
+const parentDomains = [
+  window.location.hostname,      // localhost or deployed domain
+  "localhost", 
+  "mintwatcher.onrender.com"     // your Render app domain
+];
   const container=$('#videoContainer');
   container.innerHTML='<div id="twitch-embed-video" style="width:100%;height:100%;"></div>';
-  if(window.Twitch?.Embed) videoEmbed=new Twitch.Embed('twitch-embed-video',{width:'100%',height:'100%',channel:CHANNEL,parent}); 
-  else container.innerHTML='Stream could not load';
+if(window.Twitch?.Embed) {
+  videoEmbed = new Twitch.Embed('twitch-embed-video', {
+    width: '100%',
+    height: '100%',
+    channel: CHANNEL,
+    parent: parentDomains
+  });
+} else {
+  container.innerHTML = 'Stream could not load';
+}
 }
 
 // Fetch Twitch data
@@ -296,12 +308,15 @@ async function loadData(){
     $('#channelName').textContent=u?.display_name||'Unknown';
     $('#streamTitle').textContent=s?.title||'Offline';
     $('#streamMeta').textContent=s?`Game: ${s.game_name||'—'} • Started ${new Date(s.started_at||Date.now()).toLocaleString()}`:'';
-    $('#watchLink').style.display=s?'inline-flex':'none';
-    $('#offlinePill').style.display=s?'none':'inline';
-    $('#openChannel').href=`https://twitch.tv/${u?.login||CHANNEL}`;
-    $('#liveText').textContent=s?'Live':'Offline';
-    $('#liveText').parentElement.style.display=s?'inline-flex':'none';
-    $('#offlinePill').style.display=s?'none':'inline-flex';
+ if(s){
+  $('#watchLink').style.display = 'inline-flex';
+  $('#offlinePill').style.display = 'none';
+  $('#liveText').textContent = 'Live';
+} else {
+  $('#watchLink').style.display = 'none';
+  $('#offlinePill').style.display = 'inline-flex';
+  $('#liveText').textContent = 'Offline';
+}
     $('#viewerCount').textContent=s?.viewer_count||0;
     $('#followersCount').textContent=(data.followers||'N/A').toLocaleString();
     $('#vodCount').textContent=(data.videos?.length||0);
