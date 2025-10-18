@@ -197,7 +197,8 @@ footer {
   <div class="brand"><h1 id="channelName">Loading...</h1></div>
   <div class="nav-actions">
     <button id="refreshBtn" class="btn"><i class="fa-solid fa-arrows-rotate"></i></button>
-    <a id="openChannel" class="btn" href="#" target="_blank"><i class="fa-brands fa-twitch"></i> Channel</a>
+    <a id="homeBtn" class="btn" href="index.html" style="text-decoration: none;"><i class="fa-solid fa-house"></i> Home</a>
+    <a id="openChannel" class="btn" href="#" target="_blank" style="text-decoration: none;"><i class="fa-brands fa-twitch"></i> Channel</a>
     <button id="themeToggle" class="ghost"><i id="themeIcon" class="fa-regular fa-moon"></i></button>
   </div>
 </nav>
@@ -206,7 +207,7 @@ footer {
   <div class="top-row">
     <div class="hero-left card">
       <div style="margin-bottom:10px;">
-        <a id="watchLink" class="live-pill" href="#" target="_blank"><span id="liveText">Live</span></a>
+        <a id="watchLink" class="live-pill" href="#" target="_blank" style="text-decoration: none;"><span id="liveText">Live</span></a>
         <span id="offlinePill" class="offline-pill" style="display:none;">Offline</span>
       </div>
       <h2 id="streamTitle" style="font-size:1.5rem;margin:10px 0;">Loading...</h2>
@@ -310,44 +311,64 @@ if(window.Twitch?.Embed) {
 // Fetch Twitch data
 async function loadData(){
   try{
-    const res=await fetch(`${BASE_URL}/api/twitch?channel=${CHANNEL}`);
+    const res = await fetch(`${BASE_URL}/api/twitch?channel=${CHANNEL}`);
     if(!res.ok) throw new Error('Fetch failed');
-    const data=await res.json();
-    const u=data.user,s=data.stream;
+    const data = await res.json();
+    const u = data.user, s = data.stream;
 
-    $('#channelName').textContent=u?.display_name||'Unknown';
-    $('#streamTitle').textContent=s?.title||'Offline';
-    $('#streamMeta').textContent=s?`Game: ${s.game_name||'—'} • Started ${new Date(s.started_at||Date.now()).toLocaleString()}`:'';
- if(s){
-  $('#watchLink').style.display = 'inline-flex';
-  $('#offlinePill').style.display = 'none';
-  $('#liveText').textContent = 'Live';
-} else {
-  $('#watchLink').style.display = 'none';
-  $('#offlinePill').style.display = 'inline-flex';
-  $('#liveText').textContent = 'Offline';
-}
-    $('#viewerCount').textContent=s?.viewer_count||0;
-    $('#followersCount').textContent=(data.followers||'N/A').toLocaleString();
-    $('#vodCount').textContent=(data.videos?.length||0);
+    // 🔹 Update channel name + Twitch link
+    $('#channelName').textContent = u?.display_name || 'Unknown';
+    $('#openChannel').href = `https://twitch.tv/${CHANNEL}`; // 👈 auto link to Twitch channel
 
-    const clipsEl=$('#clips'); clipsEl.innerHTML='';
-    (data.clips||[]).slice(0,8).forEach(c=>{
-      const a=document.createElement('a'); a.href=c.url; a.target='_blank'; a.className='media';
-      a.innerHTML=`<img src="${c.thumbnail_url}" alt="${c.title||'clip'}"><div class="meta"><p>${c.title?.slice(0,70)||''}</p><small>${c.creator_name||c.creator||''}</small></div>`;
+    $('#streamTitle').textContent = s?.title || 'Offline';
+    $('#streamMeta').textContent = s
+      ? `Game: ${s.game_name || '—'} • Started ${new Date(s.started_at || Date.now()).toLocaleString()}`
+      : '';
+
+    if (s) {
+      $('#watchLink').style.display = 'inline-flex';
+      $('#offlinePill').style.display = 'none';
+      $('#liveText').textContent = 'Live';
+    } else {
+      $('#watchLink').style.display = 'none';
+      $('#offlinePill').style.display = 'inline-flex';
+      $('#liveText').textContent = 'Offline';
+    }
+
+    $('#viewerCount').textContent = s?.viewer_count || 0;
+    $('#followersCount').textContent = (data.followers || 'N/A').toLocaleString();
+    $('#vodCount').textContent = (data.videos?.length || 0);
+
+    const clipsEl = $('#clips'); clipsEl.innerHTML = '';
+    (data.clips || []).slice(0,8).forEach(c => {
+      const a = document.createElement('a');
+      a.href = c.url;
+      a.target = '_blank';
+      a.className = 'media';
+      a.innerHTML = `<img src="${c.thumbnail_url}" alt="${c.title || 'clip'}">
+                     <div class="meta"><p>${c.title?.slice(0,70) || ''}</p>
+                     <small>${c.creator_name || c.creator || ''}</small></div>`;
       clipsEl.appendChild(a);
     });
 
-    const vodEl=$('#vods'); vodEl.innerHTML='';
-    (data.videos||[]).slice(0,8).forEach(v=>{
-      const a=document.createElement('a'); a.href=v.url; a.target='_blank'; a.className='media';
-      a.innerHTML=`<img src="${v.thumbnail_url?.replace('%{width}','640').replace('%{height}','360')||''}" alt="${v.title||'vod'}"><div class="meta"><p>${v.title?.slice(0,80)||''}</p><small>${new Date(v.created_at||v.published_at||Date.now()).toLocaleDateString()}</small></div>`;
+    const vodEl = $('#vods'); vodEl.innerHTML = '';
+    (data.videos || []).slice(0,8).forEach(v => {
+      const a = document.createElement('a');
+      a.href = v.url;
+      a.target = '_blank';
+      a.className = 'media';
+      a.innerHTML = `<img src="${v.thumbnail_url?.replace('%{width}','640').replace('%{height}','360') || ''}" alt="${v.title || 'vod'}">
+                     <div class="meta"><p>${v.title?.slice(0,80) || ''}</p>
+                     <small>${new Date(v.created_at || v.published_at || Date.now()).toLocaleDateString()}</small></div>`;
       vodEl.appendChild(a);
     });
 
     createVideo();
-    showToast('Dashboard loaded',1500);
-  }catch(err){console.error(err);showToast('Failed to load Twitch data',5000);}
+    showToast('Dashboard loaded', 1500);
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to load Twitch data', 5000);
+  }
 }
 
 // Other channels
