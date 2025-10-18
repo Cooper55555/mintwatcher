@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MintGirlMint</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0fdf7;
+      --card: #ffffff;
+      --muted: #6c6f6a;
+      --accent: #0b6b45;
+      --mint-500: #3ac47d;
+      --mint-600: #28a745;
+      --radius: 20px;
+      --shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+    .dark {
+      --bg: #0a1a14;
+      --card: #0f261e;
+      --muted: #99a39a;
+      --accent: #9ef0c6;
+      --mint-500: #1a6b4c;
+      --mint-600: #14905c;
+    }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--accent);
+      transition: all .4s;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 30px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav h1 { font-size: 1.5rem; margin: 0; color: var(--mint-600); }
+    .ghost {
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.1);
+      padding: 8px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: var(--accent);
+    }
+
+    /* --- Bracket Layout --- */
+    .bracket-container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .bracket-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .bracket-header h1 {
+      font-size: 2.2rem;
+      color: var(--mint-600);
+      margin-bottom: 10px;
+    }
+    .bracket-header p { color: var(--muted); }
+
+    .round {
+      margin-bottom: 50px;
+    }
+    .round-title {
+      font-size: 1.5rem;
+      color: var(--mint-600);
+      border-bottom: 2px solid var(--mint-500);
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    .match {
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      margin-bottom: 15px;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform .2s ease;
+    }
+    .match:hover {
+      transform: translateY(-3px);
+    }
+    .team {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 10px;
+      transition: background .3s ease;
+      min-width: 180px;
+    }
+    .team:hover { background: rgba(0,0,0,0.05); }
+
+    .player {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin: 4px 0;
+    }
+
+    .rank {
+      font-size: 0.85rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+      color: #fff;
+      margin-left: 10px;
+      margin-right: 10px;
+      white-space: nowrap;
+    }
+
+    /* Rank Colors */
+    .champion { background: #9b59b6; }
+    .diamond { background: #5dade2; }
+    .platinum { background: #85c1e9; }
+    .gold { background: #f1c40f; color: #333; }
+    .silver { background: #bdc3c7; color: #333; }
+    .bronze { background: #cd7f32; }
+    .grandchamp { background: #e056fd; }
+
+    .vs {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--mint-600);
+    }
+
+    /* Winner box with white background */
+    .winner {
+      background: var(--card);
+      color: var(--accent);
+      font-weight: 700;
+      text-align: center;
+      font-size: 1.2rem;
+      padding: 12px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .btn {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  background: var(--mint-500);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s;
+  font-size: 0.9rem;
+}
+.btn:hover {
+  background: var(--mint-600);
+}
+  </style>
+</head>
+<body>
+
+<nav>
+  <h1>MintGirlMint</h1>
+  <div class="nav-actions" style="display:flex; gap:10px; align-items:center;">
+    <a href="index.html" class="btn" style="text-decoration:none;">
+      <i class="fa-solid fa-house"></i> Home
+    </a>
+    <button id="themeToggle" class="ghost">
+      <i id="themeIcon" class="fa-regular fa-moon"></i>
+    </button>
+  </div>
+</nav>
+
+  <section class="bracket-container">
+    <div class="bracket-header">
+      <h1>MintGirlMint Rocket League Tournament</h1>
+      <p>Lower players get a chance to shine!</p>
+    </div>
+
+    <div class="round">
+      <h2 class="round-title">Round 1</h2>
+
+      <div class="match">
+        <div class="team">
+          <div class="player">
+            <span class="rank champion">Champion III</span>
+            CØ0PER
+          </div>
+          <div class="player">
+            <span class="rank platinum">Platinum I</span>
+            mintgirlmint
+          </div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team">
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="match">
+        <div class="team">
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team">
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+        </div>
+      </div>
+      <div class="match">
+        <div class="team">
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team">
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="match">
+        <div class="team">
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team">
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="round">
+      <h2 class="round-title">Semi-Finals</h2>
+
+      <div class="match">
+        <div class="team">
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team">
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+        </div>
+      </div>
+            <div class="match">
+        <div class="team">
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team">
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="round">
+      <h2 class="round-title">Final</h2>
+
+      <div class="match">
+        <div class="team">
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+          <div class="player">
+            <span class="rank">???</span>
+            ???
+          </div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team">
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+          <div class="player">
+            ???
+            <span class="rank">???</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="round">
+      <h2 class="round-title">Winner</h2>
+      <div class="winner">
+        ??? & ???
+        <div style="margin-top:5px;">
+          <span class="rank">???</span>
+          <span class="rank">???</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 MintWatcher — Made By Cooper</p>
+  </footer>
+
+  <script>
+    const icon = document.getElementById('themeIcon');
+    const body = document.body;
+    function isDark(){return body.classList.contains('dark')}
+    function setTheme(dark){
+      if(dark){
+        body.classList.add('dark');
+        icon.className='fa-solid fa-sun';
+        localStorage.setItem('theme','dark');
+      } else {
+        body.classList.remove('dark');
+        icon.className='fa-regular fa-moon';
+        localStorage.setItem('theme','light');
+      }
+    }
+    setTheme(localStorage.getItem('theme')==='dark');
+    document.getElementById('themeToggle').addEventListener('click',()=>setTheme(!isDark()));
+  </script>
+
+</body>
+</html>
