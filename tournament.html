@@ -173,6 +173,57 @@
 .btn:hover {
   background: var(--mint-600);
 }
+
+@media (max-width: 768px) {
+  .bracket-container {
+    margin: 10px auto;
+    padding: 0 5px;
+  }
+  .round {
+    margin-bottom: 15px;
+  }
+  .round-title {
+    font-size: 1.2rem;
+  }
+  .match {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 5px;
+    padding: 6px;
+  }
+  .team {
+    min-width: auto;
+    padding: 4px 6px;
+    margin-bottom: 4px;
+  }
+  .vs {
+    text-align: center;
+    margin: 2px 0;
+  }
+}
+
+@media (max-width: 500px) {
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .nav-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  .btn {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+  .ghost {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+}
+
   </style>
 </head>
 <body>
