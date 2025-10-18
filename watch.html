@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MintWatcher</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0fdf7; 
+  --card:#ffffff; 
+  --muted:#6c6f6a; 
+  --accent:#0b6b45; 
+  --mint-500:#3ac47d; 
+  --mint-600:#28a745; 
+  --offline:#6c757d;
+  --radius:20px; 
+  --shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+.dark{
+  --bg:#0a1a14; 
+  --card:#0f261e; 
+  --muted:#99a39a;
+  --accent:#9ef0c6; 
+  --mint-500:#1a6b4c; 
+  --mint-600:#14905c; 
+  --offline:#495057;
+}
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:var(--bg);
+  color:var(--accent);
+  transition:all .4s;
+}
+.live-dot {
+  display: inline-block;
+  width: 12px;   /* was 10px */
+  height: 12px;  /* was 10px */
+  background-color: red;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+/* Ensure dark mode sun icon is white */
+.dark #themeIcon {
+  color: #9ef0c6;
+}
+*{box-sizing:border-box;}
+nav{
+  position:sticky;
+  top:0;
+  padding:14px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  margin:12px;
+  z-index:10;
+  flex-wrap:wrap;
+}
+.nav-actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.btn{
+  padding:10px 16px;
+  border-radius:999px;
+  border:none;
+  background:var(--mint-500);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+  font-size:0.9rem;
+}
+.btn:hover{background:var(--mint-600);}
+.ghost{
+  background:transparent;
+  border:1px solid rgba(0,0,0,0.08);
+  padding:8px 12px;
+  border-radius:12px;
+  cursor:pointer;
+}
+.wrap{
+  max-width:1400px;
+  margin:20px auto;
+  padding:10px 15px;
+}
+.top-row{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.hero-left{flex:2; min-width:300px;}
+.hero-left .card{padding:20px;}
+.side{flex:1; min-width:250px;}
+.side .card{padding:20px;height:auto;}
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,0.04);
+  transition:.3s;
+  position:relative;
+  margin:20px 0;
+}
+.card:hover{
+  box-shadow:0 20px 45px rgba(0,0,0,0.12);
+}
+.channel-list{display:grid;grid-template-columns:1fr;gap:10px;}
+.channel-card{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border-radius:12px;
+  cursor:pointer;
+  transition:.2s;
+  background:var(--bg);
+}
+.channel-card:hover{background:var(--mint-500); color:#fff;}
+.channel-card img{width:40px;height:40px;border-radius:50%;object-fit:cover;}
+.live-pill, .offline-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 14px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:0.85rem;
+}
+.live-pill{background:var(--mint-500); color:#fff;}
+.offline-pill{background:var(--offline); color:#fff;}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:12px;}
+.stat-title{font-size:12px;color:var(--muted);}
+.stat-number{font-weight:700;font-size:20px;}
+.grid-media{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px;}
+.media{
+  border-radius:16px;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,255,255,0.92));
+  cursor:pointer;
+  transition:transform .3s, box-shadow .3s;
+  position:relative;
+  text-decoration:none;
+}
+.media img{display:block;width:100%;height:150px;object-fit:cover;}
+.media:hover{transform:scale(1.03); box-shadow:0 8px 20px rgba(0,0,0,0.12);}
+.media .meta{padding:8px;color:var(--mint-600);text-decoration:none;}
+.media .meta p{margin:0 0 4px;font-weight:600;color:var(--mint-600);}
+.media .meta small{color:var(--muted);font-size:11px;display:block;}
+.toast{
+  position:fixed;
+  right:15px;
+  bottom:15px;
+  background:var(--mint-600);
+  color:#e9fff4;
+  padding:12px 16px;
+  border-radius:14px;
+  box-shadow:0 12px 40px rgba(4,20,12,0.28);
+  opacity:0;
+  transition:all .3s;
+  z-index:50;
+}
+.toast.show{opacity:1;}
+/* Responsive Adjustments */
+@media(max-width:1024px){
+  .top-row{flex-direction:column;}
+  #videoContainer{height:300px;}
+}
+@media(max-width:600px){
+  nav{padding:12px;}
+  .btn{padding:8px 12px;font-size:0.85rem;}
+  .ghost{padding:6px 10px;font-size:0.8rem;}
+  #videoContainer{height:200px;}
+  .media img{height:120px;}
+  .mini-grid{grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;}
+  .grid-media{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+}
+footer {
+  text-align: center;
+  padding: 30px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="brand"><h1 id="channelName">Loading...</h1></div>
+  <div class="nav-actions">
+    <button id="refreshBtn" class="btn"><i class="fa-solid fa-arrows-rotate"></i></button>
+    <a id="openChannel" class="btn" href="#" target="_blank"><i class="fa-brands fa-twitch"></i> Channel</a>
+    <button id="themeToggle" class="ghost"><i id="themeIcon" class="fa-regular fa-moon"></i></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="top-row">
+    <div class="hero-left card">
+      <div style="margin-bottom:10px;">
+        <a id="watchLink" class="live-pill" href="#" target="_blank"><span id="liveText">Live</span></a>
+        <span id="offlinePill" class="offline-pill" style="display:none;">Offline</span>
+      </div>
+      <h2 id="streamTitle" style="font-size:1.5rem;margin:10px 0;">Loading...</h2>
+      <p id="streamMeta" style="font-size:0.9rem;color:var(--muted);"></p>
+      <div style="margin-top:8px;color:var(--muted);" id="lastUpdated"></div>
+      <div id="videoContainer" style="margin-top:12px;height:450px;"></div>
+    </div>
+
+    <aside class="side card">
+      <h4 style="margin-bottom:10px;">Other Channels</h4>
+      <div id="otherChannels" class="channel-list"></div>
+    </aside>
+  </div>
+
+  <div id="infoSections">
+    <section class="card">
+      <h3>Stats</h3>
+      <div class="mini-grid">
+        <div class="card"><div class="stat-title">Followers</div><div class="stat-number" id="followersCount">—</div></div>
+        <div class="card"><div class="stat-title">Viewers</div><div class="stat-number" id="viewerCount">—</div></div>
+        <div class="card"><div class="stat-title">Recent VODs</div><div class="stat-number" id="vodCount">—</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Top Clips</h3>
+      <div id="clips" class="grid-media"></div>
+    </section>
+
+    <section class="card">
+      <h3>Recent Streams</h3>
+      <div id="vods" class="grid-media"></div>
+    </section>
+  </div>
+</div>
+
+  <footer>
+    <p>© 2025 MintWatcher — Made By Cooper</p>
+  </footer>
+
+<div id="toast" class="toast"></div>
+<script src="https://embed.twitch.tv/embed/v1.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+let CHANNEL = 'mintgirlmint';
+
+// Auto-detect API base URL
+const BASE_URL = window.location.hostname.includes("localhost")
+  ? "http://localhost:3000"
+  : "https://mintwatcher.onrender.com"; // <-- replace with your Render app URL
+
+const API = `${BASE_URL}/api/twitch?channel=${CHANNEL}`;
+const OTHER_CHANNELS_API = `${BASE_URL}/api/channels`;
+
+// Theme toggle
+function isDark(){ return document.body.classList.contains('dark'); }
+function setTheme(dark){ 
+  if(dark){ 
+    document.body.classList.add('dark'); 
+    $('#themeIcon').className='fa-solid fa-sun'; 
+    localStorage.setItem('theme','dark'); 
+  } else { 
+    document.body.classList.remove('dark'); 
+    $('#themeIcon').className='fa-regular fa-moon'; 
+    localStorage.setItem('theme','light');
+  }
+}
+setTheme(localStorage.getItem('theme')==='dark');
+$('#themeToggle').addEventListener('click',()=>setTheme(!isDark()));
+
+// Toast helper
+function showToast(msg, t=3000){ 
+  const el=$('#toast'); 
+  el.textContent=msg; 
+  el.classList.add('show'); 
+  setTimeout(()=>el.classList.remove('show'),t);
+}
+
+// Video embed
+let videoEmbed=null;
+function createVideo(){ 
+const parentDomains = [
+  window.location.hostname,      // localhost or deployed domain
+  "localhost", 
+  "mintwatcher.onrender.com"     // your Render app domain
+];
+  const container=$('#videoContainer');
+  container.innerHTML='<div id="twitch-embed-video" style="width:100%;height:100%;"></div>';
+if(window.Twitch?.Embed) {
+  videoEmbed = new Twitch.Embed('twitch-embed-video', {
+    width: '100%',
+    height: '100%',
+    channel: CHANNEL,
+    parent: parentDomains
+  });
+} else {
+  container.innerHTML = 'Stream could not load';
+}
+}
+
+// Fetch Twitch data
+async function loadData(){
+  try{
+    const res=await fetch(`${BASE_URL}/api/twitch?channel=${CHANNEL}`);
+    if(!res.ok) throw new Error('Fetch failed');
+    const data=await res.json();
+    const u=data.user,s=data.stream;
+
+    $('#channelName').textContent=u?.display_name||'Unknown';
+    $('#streamTitle').textContent=s?.title||'Offline';
+    $('#streamMeta').textContent=s?`Game: ${s.game_name||'—'} • Started ${new Date(s.started_at||Date.now()).toLocaleString()}`:'';
+ if(s){
+  $('#watchLink').style.display = 'inline-flex';
+  $('#offlinePill').style.display = 'none';
+  $('#liveText').textContent = 'Live';
+} else {
+  $('#watchLink').style.display = 'none';
+  $('#offlinePill').style.display = 'inline-flex';
+  $('#liveText').textContent = 'Offline';
+}
+    $('#viewerCount').textContent=s?.viewer_count||0;
+    $('#followersCount').textContent=(data.followers||'N/A').toLocaleString();
+    $('#vodCount').textContent=(data.videos?.length||0);
+
+    const clipsEl=$('#clips'); clipsEl.innerHTML='';
+    (data.clips||[]).slice(0,8).forEach(c=>{
+      const a=document.createElement('a'); a.href=c.url; a.target='_blank'; a.className='media';
+      a.innerHTML=`<img src="${c.thumbnail_url}" alt="${c.title||'clip'}"><div class="meta"><p>${c.title?.slice(0,70)||''}</p><small>${c.creator_name||c.creator||''}</small></div>`;
+      clipsEl.appendChild(a);
+    });
+
+    const vodEl=$('#vods'); vodEl.innerHTML='';
+    (data.videos||[]).slice(0,8).forEach(v=>{
+      const a=document.createElement('a'); a.href=v.url; a.target='_blank'; a.className='media';
+      a.innerHTML=`<img src="${v.thumbnail_url?.replace('%{width}','640').replace('%{height}','360')||''}" alt="${v.title||'vod'}"><div class="meta"><p>${v.title?.slice(0,80)||''}</p><small>${new Date(v.created_at||v.published_at||Date.now()).toLocaleDateString()}</small></div>`;
+      vodEl.appendChild(a);
+    });
+
+    createVideo();
+    showToast('Dashboard loaded',1500);
+  }catch(err){console.error(err);showToast('Failed to load Twitch data',5000);}
+}
+
+// Other channels
+async function loadOtherChannels(){
+  try{
+    const res=await fetch(`${BASE_URL}/api/channels`);
+    const data=await res.json();
+    const container=$('#otherChannels'); container.innerHTML='';
+    data.slice(0,9).forEach(ch=>{
+      if(ch.user.login===CHANNEL) return;
+      const div=document.createElement('div');
+      div.className='channel-card';
+      div.innerHTML=`<img src="${ch.user.profile_image_url}" alt="${ch.user.display_name}"><div>${ch.stream ? '<span class="live-dot"></span>' : ''}${ch.user.display_name}</div>`;
+      div.addEventListener('click',()=>{ 
+        CHANNEL = ch.user.login;
+        loadData();
+        loadOtherChannels();
+      });
+      container.appendChild(div);
+    });
+  }catch(err){console.error(err);}
+}
+
+$('#refreshBtn').addEventListener('click',()=>{ loadData(); loadOtherChannels(); });
+document.addEventListener('DOMContentLoaded',()=>{ loadData(); loadOtherChannels(); });
+</script>
+
+</body>
+</html>
